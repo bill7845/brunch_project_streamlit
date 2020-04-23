@@ -7,27 +7,32 @@ import sqlite3
 import os
 from konlpy.tag import Twitter
 
-
+## load classifier
 def load_clf():
     cur_dir = os.path.dirname(__file__)
     clf = pickle.load(open(os.path.join(cur_dir,'pkl_objects','classifier.pkl'), 'rb'))
     return clf
 
+## 형태소 분석기
 twitter = Twitter()
 def tw_tokenizer(text):
     tokens_ko = twitter.morphs(text)
     return tokens_ko
 
+## laod tfidf vector
 def load_tfidf_matrix():
     cur_dir = os.path.dirname(__file__)
     tfidf_matrix_train = pickle.load(open(os.path.join(cur_dir,'pkl_objects','tfidf_matrix_train.pkl'), 'rb'))
     return tfidf_matrix_train
 
+# 입력받은 문서를 분류하여 분류결과,분류확률 반환
+@st.cache # 분류기 한번 학습시 계속 결과 저장
 def classify(document):
-    label = {0:'지구한바퀴_세계여행', 1:'그림·웹툰', 2:'시사·이슈', 3:'IT_트렌드',4:'사진·촬영', 5:'취향저격_영화_리뷰', 6:'뮤직_인사이드', 7:'육아_이야기', 8:'요리·레시피',
-    9:'건강·운동', 10:'멘탈_관리_심리_탐구', 11:'문화·예술', 12:'건축·설계',
-    13:'인문학·철학',14:'쉽게_읽는_역사', 15:'우리집_반려동물', 16:'오늘은_이런_책',
-    17:'직장인_현실_조언', 18:'디자인_스토리',19:'감성_에세이'}
+    label = {0:'지구한바퀴 세계여행', 1:'그림 웹툰', 2:'시사 이슈', 3:'IT 트렌드',4:'사진 촬영', 5:'취향저격 영화리뷰', 6:'뮤직 인사이드',
+     7:'육아 이야기', 8:'요리 레시피',
+    9:'건강 운동', 10:'멘탈관리 심리탐구', 11:'문화 예술', 12:'건축 설계',
+    13:'인문학 철학',14:'쉽게 읽는 역사', 15:'우리집 반려동물', 16:'오늘은 이런 책',
+    17:'직장인 현실 조언', 18:'디자인 스토리',19:'감성 에세이'}
 
     tfidf_matrix_train = load_tfidf_matrix()
     clf = load_clf()
@@ -40,40 +45,67 @@ def classify(document):
 
     return label[y],proba_max
 
+## category에 해당하는 keyword 목록 반환
+def get_categories(label,dict):
+    return tuple(dict[label]) # multiselect box에서 사용위해 tuple로 반환
+
+## main 함수
 def main():
     st.title("Wellcome!")
 
-    document = st.text_area("text를 입력하세요!")
-    if st.button("Submit", key='document'):
-        # result = document.title()
+    document = st.text_area("text를 입력하세요!") ## text 입력란
+
+    submit_button = st.button("submit",key='document') # submit 버튼
+
+    #######################################################################
+    ## 1. 문서 입력 후 submit 버튼 클릭 시 분류 모델에 의해 분류라벨,확률값 출력
+    #######################################################################
+    if submit_button:
         label,proba_max = classify(document)
         st.write('이 글은 %f의 확률로 %s 입니다' %(proba_max,label))
 
-    status = st.radio("맞춤 / 틀림", ("<select>","correct", "incorrect"))
+    #######################################################################
+    ## 2. 분류 결과에 대한 맞춤,틀림 여부 입력받음
+    ##      2.1 정답일 경우
+    ##      2.2 오답일 경우
+    #######################################################################
+    category_list = ['<select>','지구한바퀴 세계여행', '그림 웹툰', '시사 이슈',
+        'IT 트렌드', '사진 촬영', '취향저격 영화리뷰', '뮤직 인사이드',
+        '육아 이야기', '요리 레시피', '건강 운동', '멘탈관리 심리탐구',
+        '문화 예술', '건축 설계', '인문학 철학','쉽게 읽는 역사',
+        '우리집 반려동물' , '오늘은 이런 책', '직장인 현실 조언', '디자인 스토리',
+        '감성 에세이']
 
-    category_correction = st.empty()
-    category_correction = " OPTIMIZE: Category! "
+    status = st.radio("맞춤 / 틀림", ("<select>","correct", "incorrect")) # <select> 기본값
 
-    category_list = ['<select>','지구한바퀴_세계여행', '그림·웹툰', '시사·이슈',
-        'IT_트렌드', '사진·촬영', '취향저격_영화_리뷰', '뮤직_인사이드',
-        '육아_이야기', '요리·레시피', '건강·운동', '멘탈_관리_심리_탐구',
-        '문화·예술', '건축·설계', '인문학·철학','쉽게_읽는_역사',
-        '우리집_반려동물' , '오늘은_이런_책', '직장인_현실_조언', '디자인_스토리',
-        '감성_에세이']
-    if status == "incorrect" :
-        category_correction = st.selectbox("category 수정하기", category_list)
-        if category_correction != "<select>":
-            st.write("You selected this option ",category_correction)
-    elif status == "correct":
+    if status == "correct" : # 정답일 경우
         st.write("correct!")
-        category_correction = label
+        label,proba_max = classify(document)
 
-    # choose_category = st.selectbox("",["NONE","Decision Tree", "Neural Network", "K-Nearest Neighbours"])
+        ## 해당 글에 해당하는 keyword리스트를 가진 dictionary load
+        cur_dir = os.path.dirname(__file__)
+        category_dict = pickle.load(open(os.path.join(cur_dir,'pkl_objects','keyword_dict_renew.txt'), 'rb'))
+        ## 추천 시스템 부분 시작
+        st.write('---')
+        st.write("## 추천 시스템")
 
-	# if st.checkbox('Show Raw Data'):
-	# 	st.subheader("Showing raw data---->>>")
-	# 	st.write('hello')
+        select_category = st.multiselect("keyword를 선택하세요.",get_categories(label,category_dict))
+        st.write(len(select_category), "가지를 선택했습니다.")
 
+
+    elif status == "incorrect": # 오답일 경우
+        category_correction = st.selectbox("category 수정하기", category_list) # 오답일 경우 정답을 새로 입력받음
+        if category_correction != "<select>": # 오답 수정 부분이 입력 받았을 경우 (default가 아닐경우 => 값을 입력받은 경우)
+            st.write("피드백을 주셔서 감사합니다.",category_correction)
+
+            ## 해당 글에 해당하는(수정 된 정답라벨) keyword리스트를 가진 dictionary load
+            cur_dir = os.path.dirname(__file__)
+            category_dict = pickle.load(open(os.path.join(cur_dir,'pkl_objects','keyword_dict_renew.txt'), 'rb'))
+
+            st.write('---')
+            st.write("## 추천 시스템")
+            select_category = st.multiselect("keyword를 선택하세요.",get_categories(category_correction,category_dict))
+            st.write(len(select_category), "가지를 선택했습니다.")
 
 
 if __name__ == "__main__":
