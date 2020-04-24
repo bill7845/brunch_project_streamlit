@@ -1,11 +1,32 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 import pickle
 import sqlite3
 import os
 from konlpy.tag import Twitter
+
+## load csv
+@st.cache
+def load_data():
+    df = pd.read_csv('C:/Users/KIHyuk/Documents/GitHub/brunch_project_streamlit/pkl_objects/all_df.csv'
+    ,index_col='Unnamed: 0')
+    return df
+
+## load count_vect
+def load_keyword_count_vect():
+    cur_dir = os.path.dirname(__file__)
+    keyword_count_vect = pickle.load(open(os.path.join(cur_dir,'pkl_objects','keyword_count_vect.pkl'), 'rb'))
+    return keyword_count_vect
+
+## load keyword_mat
+def load_keyword_mat():
+    cur_dir = os.path.dirname(__file__)
+    keyword_mat = pickle.load(open(os.path.join(cur_dir,'pkl_objects','keyword_mat.pkl'), 'rb'))
+    return keyword_mat
 
 ## load classifier
 def load_clf():
@@ -49,6 +70,20 @@ def classify(document):
 def get_categories(label,dict):
     return tuple(dict[label]) # multiselect box에서 사용위해 tuple로 반환
 
+## 추천 시스템
+def find_sim_document(df, count_vect, keyword_mat, input_keywords, top_n=10):
+  input_keywords_mat = count_vect.transform(pd.Series(input_keywords))
+
+  keyword_sim = cosine_similarity(input_keywords_mat, keyword_mat)
+
+  keyword_sim_sorted_ind = keyword_sim.argsort()[:,::-1]
+
+  top_n_sim = keyword_sim_sorted_ind[:1,:(top_n)]
+  top_n_sim = top_n_sim.reshape(-1)
+
+  return df.iloc[top_n_sim]
+
+
 ## main 함수
 def main():
     st.title("Wellcome!")
@@ -91,6 +126,14 @@ def main():
 
         select_category = st.multiselect("keyword를 선택하세요.",get_categories(label,category_dict))
         st.write(len(select_category), "가지를 선택했습니다.")
+
+        df = load_data()
+        keyword_count_vect = load_keyword_count_vect()
+        keyword_mat = load_keyword_mat()
+
+        rr = find_sim_document(df,keyword_count_vect,keyword_mat,pd.Series("프랑스 여행"),top_n=10)
+
+        st.write(rr)
 
 
     elif status == "incorrect": # 오답일 경우
