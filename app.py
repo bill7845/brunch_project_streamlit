@@ -81,7 +81,7 @@ def find_sim_document(df, count_vect, keyword_mat, input_keywords, top_n=10):
   top_n_sim = keyword_sim_sorted_ind[:1,:(top_n)]
   top_n_sim = top_n_sim.reshape(-1)
 
-  return df.iloc[top_n_sim]
+  return df.iloc[top_n_sim][['text','keyword']]
 
 
 ## main 함수
@@ -127,13 +127,20 @@ def main():
         select_category = st.multiselect("keyword를 선택하세요.",get_categories(label,category_dict))
         st.write(len(select_category), "가지를 선택했습니다.")
 
-        df = load_data()
-        keyword_count_vect = load_keyword_count_vect()
-        keyword_mat = load_keyword_mat()
+        keyword_submit_button = st.button("keyword 선택 완료",key='select_category') # submit 버튼
 
-        rr = find_sim_document(df,keyword_count_vect,keyword_mat,pd.Series("프랑스 여행"),top_n=10)
+        if keyword_submit_button: ## keyword 선택 완료 시
+            df = load_data()
+            keyword_count_vect = load_keyword_count_vect()
+            keyword_mat = load_keyword_mat()
 
-        st.write(rr)
+            select_category = (' ').join(select_category)
+
+            recommended_text = find_sim_document(df, keyword_count_vect, keyword_mat, select_category, top_n=5)
+            st.table(recommended_text)
+
+
+
 
 
     elif status == "incorrect": # 오답일 경우
