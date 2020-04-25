@@ -86,9 +86,9 @@ def find_sim_document(df, count_vect, keyword_mat, input_keywords, top_n=10):
 
 ## main 함수
 def main():
-    st.title("Wellcome!")
+    st.title("환영합니다 작가님!")
 
-    document = st.text_area("text를 입력하세요!") ## text 입력란
+    document = st.text_area("text를 입력해주세요") ## text 입력란
 
     submit_button = st.button("submit",key='document') # submit 버튼
 
@@ -97,7 +97,7 @@ def main():
     #######################################################################
     if submit_button:
         label,proba_max = classify(document)
-        st.write('이 글은 %f의 확률로 %s 입니다' %(proba_max,label))
+        st.write('작성하신 text는 %d퍼센트의 확률로 \'%s\' 카테고리로 분류됩니다.' %(round((proba_max)*100),label))
 
     #######################################################################
     ## 2. 분류 결과에 대한 맞춤,틀림 여부 입력받음
@@ -111,10 +111,10 @@ def main():
         '우리집 반려동물' , '오늘은 이런 책', '직장인 현실 조언', '디자인 스토리',
         '감성 에세이']
 
-    status = st.radio("맞춤 / 틀림", ("<select>","correct", "incorrect")) # <select> 기본값
+    status = st.radio("분류가 알맞게 되었는지 알려주세요!", ("<select>","맞춤", "틀림")) # <select> 기본값
 
-    if status == "correct" : # 정답일 경우
-        st.write("correct!")
+    if status == "맞춤" : # 정답일 경우
+        st.write("분류가 알맞게 되었군요! 추천시스템을 이용해보세요")
         label,proba_max = classify(document)
 
         ## 해당 글에 해당하는 keyword리스트를 가진 dictionary load
@@ -140,10 +140,8 @@ def main():
             st.table(recommended_text)
 
 
-
-
-
-    elif status == "incorrect": # 오답일 경우
+    elif status == "틀림": # 오답일 경우
+        st.write("분류가 잘못되었군요. 피드백을 주시면 감사하겠습니다.")
         category_correction = st.selectbox("category 수정하기", category_list) # 오답일 경우 정답을 새로 입력받음
         if category_correction != "<select>": # 오답 수정 부분이 입력 받았을 경우 (default가 아닐경우 => 값을 입력받은 경우)
             st.write("피드백을 주셔서 감사합니다.",category_correction)
@@ -156,6 +154,19 @@ def main():
             st.write("## 추천 시스템")
             select_category = st.multiselect("keyword를 선택하세요.",get_categories(category_correction,category_dict))
             st.write(len(select_category), "가지를 선택했습니다.")
+
+            keyword_submit_button = st.button("keyword 선택 완료",key='select_category') # submit 버튼
+
+            if keyword_submit_button: ## keyword 선택 완료 시
+                df = load_data()
+                keyword_count_vect = load_keyword_count_vect()
+                keyword_mat = load_keyword_mat()
+
+                select_category = (' ').join(select_category)
+
+                recommended_text = find_sim_document(df, keyword_count_vect, keyword_mat, select_category, top_n=5)
+                st.table(recommended_text)
+
 
 
 if __name__ == "__main__":
