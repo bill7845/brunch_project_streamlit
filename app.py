@@ -1,4 +1,5 @@
 import streamlit as st
+# import awesome_streamlit as ast
 import pandas as pd
 import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
@@ -125,7 +126,7 @@ def main():
         st.write("## 추천 시스템")
 
         select_category = st.multiselect("keyword를 선택하세요.",get_categories(label,category_dict))
-        st.write(len(select_category), "가지를 선택했습니다.")
+        st.write(len(select_category), "가지 keyword를 선택했습니다.")
 
         keyword_submit_button = st.button("keyword 선택 완료",key='select_category') # submit 버튼
 
@@ -153,7 +154,7 @@ def main():
             st.write('---')
             st.write("## 추천 시스템")
             select_category = st.multiselect("keyword를 선택하세요.",get_categories(category_correction,category_dict))
-            st.write(len(select_category), "가지를 선택했습니다.")
+            st.write(len(select_category), "가지 keyword를 선택했습니다.")
 
             keyword_submit_button = st.button("keyword 선택 완료",key='select_category') # submit 버튼
 
