@@ -96,9 +96,14 @@ def find_sim_document(df, count_vect, keyword_mat, input_keywords, top_n=10):
   return df.iloc[top_n_sim][['text','keyword']]
 
 ## keyword trend 차트
-def keyword_trend_chart(df,select_keyword):
+def keyword_trend_chart(df, select_keyword):
     df.index = pd.to_datetime(df['publish_date'],format='%Y-%m-%d')
-    df = df['keyword']['2020-01-01':].resample('5D').sum()
+    df = df['keyword']['2020-01-01':].resample('M').sum()
+
+    # if resampling_num == 'M':
+    #     df = df['keyword']['2020-01-01':].resample('M').sum()
+    # else :
+    #     df = df['keyword']['2020-01-01':].resample(resampling_num + 'D').sum()
 
     res_df = pd.DataFrame(columns=select_keyword,index=df.index)
     for keyword in select_keyword:
@@ -128,29 +133,32 @@ def main():
     ## 개요 페이지. (시작 페이지)
     if app_mode == "Home":
 
-        st.title("Brunch Networking")
-        st.subheader("부제목")
-        st.write('---')
+        st.title("개요. 시작페이지.")
+        st.subheader("간지나는 글.")
 
-        st.write(
-        '''
-        ## < Content >
-
-        * 브런치라는 서비스
-        * 작가도 독자중의 한명
-        * 머신러닝을 활용한 브런치 네트워킹
-        '''
-        )
-        st.write("---")
-
-        st.markdown(
-        '''
-        ## 1. 브런치라는 서비스
-
-
-
-        '''
-        )
+        # st.title("Brunch Networking")
+        # st.subheader("부제목")
+        # st.write('---')
+        #
+        # st.write(
+        # '''
+        # ## < Content >
+        #
+        # * 브런치라는 서비스
+        # * 작가도 독자중의 한명
+        # * 머신러닝을 활용한 브런치 네트워킹
+        # '''
+        # )
+        # st.write("---")
+        #
+        # st.markdown(
+        # '''
+        # ## 1. 브런치라는 서비스
+        #
+        #
+        #
+        # '''
+        # )
 
 
 
@@ -199,6 +207,7 @@ def main():
             ## 추천 시스템 부분 시작
             st.write('---')
             st.write("## 추천 시스템")
+            st.write("선택하신 키워드를 기반으로 다른 작가분의 글을 추천해드려요.")
             select_category = st.multiselect("keyword를 선택하세요.",get_categories(label,category_dict))
             st.write(len(select_category), "가지 keyword를 선택했습니다.")
 
@@ -208,15 +217,20 @@ def main():
                 df = load_data()
                 keyword_count_vect = load_keyword_count_vect()
                 keyword_mat = load_keyword_mat()
-                line_chart_df = keyword_trend_chart(df,select_category)
+
 
                 st.write("")
-                st.write("입력하신 키워드의 트렌드입니다.")
+                st.write("")
+                st.write("키워드 트렌드")
+                line_chart_df = keyword_trend_chart(df,select_category)
                 st.line_chart(line_chart_df)
 
                 select_category_joined = (' ').join(select_category)
 
                 recommended_text = find_sim_document(df, keyword_count_vect, keyword_mat, select_category_joined, top_n=5)
+
+                st.write("")
+                st.write("<추천글 목록>")
                 st.table(recommended_text)
 
                 answer = 1 # 맞춤/틀림 여부
@@ -227,7 +241,7 @@ def main():
             label,proba_max = classify(document)
             category_correction = st.selectbox("category 수정하기", category_list) # 오답일 경우 정답을 새로 입력받음
             if category_correction != "<select>": # 오답 수정 부분이 입력 받았을 경우 (default가 아닐경우 => 값을 입력받은 경우)
-                st.write("피드백을 주셔서 감사합니다.")
+                st.write("피드백을 주셔서 감사합니다. 추천 시스템을 이용해보세요")
 
                 ## 해당 글에 해당하는(수정 된 정답라벨) keyword리스트를 가진 dictionary load
                 cur_dir = os.path.dirname(__file__)
@@ -235,6 +249,7 @@ def main():
 
                 st.write('---')
                 st.write("## 추천 시스템")
+                st.write("선택하신 키워드를 기반으로 다른 작가분의 글을 추천해드려요.")
                 select_category = st.multiselect("keyword를 선택하세요.",get_categories(category_correction,category_dict))
                 st.write(len(select_category), "가지 keyword를 선택했습니다.")
 
@@ -245,10 +260,18 @@ def main():
                     keyword_count_vect = load_keyword_count_vect()
                     keyword_mat = load_keyword_mat()
 
+                    st.write("")
+                    st.write("")
+                    st.write("키워드 트렌드")
+                    line_chart_df = keyword_trend_chart(df,select_category)
+                    st.line_chart(line_chart_df)
+
                     select_category_joined = (' ').join(select_category)
 
                     recommended_text = find_sim_document(df, keyword_count_vect, keyword_mat, select_category_joined, top_n=5)
 
+                    st.write("")
+                    st.write("<추천글 목록>")
                     st.table(recommended_text)
 
                     answer = 0 # 맞춤/틀림 여부
