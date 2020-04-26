@@ -89,6 +89,18 @@ def find_sim_document(df, count_vect, keyword_mat, input_keywords, top_n=10):
 def main():
     st.title("환영합니다 작가님!")
 
+    st.sidebar.title("둘러보기")
+    app_mode = st.sidebar.selectbox("Choose the app mode",
+        ["Show instructions", "Run the app", "Show the source code"])
+    if app_mode == "Show instructions":
+        st.sidebar.success('To continue select "Run the app".')
+    elif app_mode == "Show the source code":
+        st.write("sss")
+        # st.code(get_file_content_as_string("app.py"))
+    elif app_mode == "Run the app":
+        readme_text.empty()
+        # run_the_app()
+
     document = st.text_area("text를 입력해주세요") ## text 입력란
 
     submit_button = st.button("submit",key='document') # submit 버튼
