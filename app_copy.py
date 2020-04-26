@@ -22,7 +22,7 @@ import plotly as plt
 
 
 ## load csv
-@st.cache
+# @st.cache
 def load_data():
     df = pd.read_csv('C:/Users/KIHyuk/Documents/GitHub/brunch_project_streamlit/pkl_objects/all_df.csv'
     ,index_col='Unnamed: 0')
@@ -95,6 +95,20 @@ def find_sim_document(df, count_vect, keyword_mat, input_keywords, top_n=10):
 
   return df.iloc[top_n_sim][['text','keyword']]
 
+## keyword trend 차트
+def keyword_trend_chart(df,select_keyword):
+    df.index = pd.to_datetime(df['publish_date'],format='%Y-%m-%d')
+    df = df['keyword']['2020-01-01':].resample('5D').sum()
+
+    res_df = pd.DataFrame(columns=select_keyword,index=df.index)
+    for keyword in select_keyword:
+        keyword_week_count = []
+        for week in range(len(df)):
+            keyword_week_count.append(df.iloc[week].count(keyword))
+        res_df[keyword] = keyword_week_count
+
+    return res_df
+
 ## sqlite query
 def sqlite_main(document, answer, pred_label, correction_label, keyword_select):
     conn = sqlite3.connect('brunch_network.db')
@@ -147,10 +161,12 @@ def main():
     elif app_mode == "App 실행":
         st.sidebar.success('앱 실행중입니다')
         st.title("환영합니다 작가님!")
+        st.write("")
+        st.write("")
 
-        document = st.text_area("작성하신 글을 입력해주세요") ## text 입력란
+        document = st.text_area("작성하신 글을 입력해주세요.") ## text 입력란
 
-        submit_button = st.button("submit",key='document') # submit 버튼
+        submit_button = st.button("제출",key='document') # submit 버튼
 
         #######################################################################
         ## 1. 문서 입력 후 submit 버튼 클릭 시 분류 모델에 의해 분류라벨,확률값 출력
@@ -170,7 +186,7 @@ def main():
             '문화 예술', '건축 설계', '인문학 철학','쉽게 읽는 역사',
             '우리집 반려동물' , '오늘은 이런 책', '직장인 현실 조언', '디자인 스토리',
             '감성 에세이']
-
+        st.write("")
         status = st.radio("분류가 알맞게 되었는지 알려주세요!", ("<select>","맞춤", "틀림")) # <select> 기본값
 
         if status == "맞춤" : # 정답일 경우
@@ -192,17 +208,22 @@ def main():
                 df = load_data()
                 keyword_count_vect = load_keyword_count_vect()
                 keyword_mat = load_keyword_mat()
+                line_chart_df = keyword_trend_chart(df,select_category)
 
-                select_category = (' ').join(select_category)
+                st.write("")
+                st.write("입력하신 키워드의 트렌드입니다.")
+                st.line_chart(line_chart_df)
 
-                recommended_text = find_sim_document(df, keyword_count_vect, keyword_mat, select_category, top_n=5)
+                select_category_joined = (' ').join(select_category)
+
+                recommended_text = find_sim_document(df, keyword_count_vect, keyword_mat, select_category_joined, top_n=5)
                 st.table(recommended_text)
 
                 answer = 1 # 맞춤/틀림 여부
-                sqlite_main(document, answer, label, None, select_category) ## 결과 db 저장
+                sqlite_main(document, answer, label, None, select_category_joined) ## 결과 db 저장
 
         elif status == "틀림": # 오답일 경우
-            st.write("분류가 잘못되었군요. 피드백을 주시면 감사하겠습니다.")
+            st.write("분류가 잘못되었군요. 피드백을 주신다면 다음부턴 틀리지 않을거예요.")
             label,proba_max = classify(document)
             category_correction = st.selectbox("category 수정하기", category_list) # 오답일 경우 정답을 새로 입력받음
             if category_correction != "<select>": # 오답 수정 부분이 입력 받았을 경우 (default가 아닐경우 => 값을 입력받은 경우)
@@ -224,14 +245,14 @@ def main():
                     keyword_count_vect = load_keyword_count_vect()
                     keyword_mat = load_keyword_mat()
 
-                    select_category = (' ').join(select_category)
+                    select_category_joined = (' ').join(select_category)
 
-                    recommended_text = find_sim_document(df, keyword_count_vect, keyword_mat, select_category, top_n=5)
+                    recommended_text = find_sim_document(df, keyword_count_vect, keyword_mat, select_category_joined, top_n=5)
 
                     st.table(recommended_text)
 
                     answer = 0 # 맞춤/틀림 여부
-                    sqlite_main(document, answer, label, category_correction, select_category) ## 결과 db 저장
+                    sqlite_main(document, answer, label, category_correction, select_category_joined) ## 결과 db 저장
 
     ## code review 페이지.
     elif app_mode == "전체 Code":
