@@ -16,10 +16,9 @@ import seaborn as sns
 import plotly as plt
 
 
-print(mat.__version__)
-print(sns.__version__)
-print(plt.__version__)
-
+# print(mat.__version__)
+# print(sns.__version__)
+# print(plt.__version__)
 
 
 ## load csv
@@ -96,7 +95,7 @@ def find_sim_document(df, count_vect, keyword_mat, input_keywords, top_n=10):
 
   return df.iloc[top_n_sim][['text','keyword']]
 
-##
+## sqlite query
 def sqlite_main(document, answer, pred_label, correction_label, keyword_select):
     conn = sqlite3.connect('brunch_network.db')
     c = conn.cursor()
@@ -109,19 +108,47 @@ def sqlite_main(document, answer, pred_label, correction_label, keyword_select):
 def main():
 
     st.sidebar.title("Menu")
-    app_mode = st.sidebar.selectbox("메뉴 선택",
-        ["개요", "Run App", "Code"])
+    app_mode = st.sidebar.selectbox("",
+        ["Home", "App 실행", "전체 Code"])
 
     ## 개요 페이지. (시작 페이지)
-    if app_mode == "개요":
-        st.title("개요 페이지")
+    if app_mode == "Home":
+
+        st.title("Brunch Networking")
+        st.subheader("부제목")
+        st.write('---')
+
+        st.write(
+        '''
+        ## < Content >
+
+        * 브런치라는 서비스
+        * 작가도 독자중의 한명
+        * 머신러닝을 활용한 브런치 네트워킹
+        '''
+        )
+        st.write("---")
+
+        st.markdown(
+        '''
+        ## 1. 브런치라는 서비스
+
+
+
+        '''
+        )
+
+
+
+
+
 
     ## app 실행 페이지.
-    elif app_mode == "Run App":
-        st.sidebar.success('To continue select "Run the app".')
+    elif app_mode == "App 실행":
+        st.sidebar.success('앱 실행중입니다')
         st.title("환영합니다 작가님!")
 
-        document = st.text_area("text를 입력해주세요") ## text 입력란
+        document = st.text_area("작성하신 글을 입력해주세요") ## text 입력란
 
         submit_button = st.button("submit",key='document') # submit 버튼
 
@@ -130,7 +157,7 @@ def main():
         #######################################################################
         if submit_button:
             label,proba_max = classify(document)
-            st.write('작성하신 text는 %d퍼센트의 확률로 \'%s\' 카테고리로 분류됩니다.' %(round((proba_max)*100),label))
+            st.write('작성하신 글은 %d퍼센트의 확률로 \'%s\' 카테고리로 분류됩니다.' %(round((proba_max)*100),label))
 
         #######################################################################
         ## 2. 분류 결과에 대한 맞춤,틀림 여부 입력받음
@@ -207,7 +234,7 @@ def main():
                     sqlite_main(document, answer, label, category_correction, select_category) ## 결과 db 저장
 
     ## code review 페이지.
-    elif app_mode == "Code":
+    elif app_mode == "전체 Code":
         st.write("show code")
 
 
