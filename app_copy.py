@@ -7,7 +7,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import pickle
 import sqlite3
 import os
-from konlpy.tag import Twitter
+from konlpy.tag import Okt
 
 import sklearn
 import konlpy
@@ -47,9 +47,9 @@ def load_clf():
     return clf
 
 ## 형태소 분석기
-twitter = Twitter()
-def tw_tokenizer(text):
-    tokens_ko = twitter.morphs(text)
+okt = Okt()
+def okt_tokenizer(text):
+    tokens_ko = okt.morphs(text,stem=True)
     return tokens_ko
 
 ## laod tfidf vector
@@ -100,11 +100,6 @@ def keyword_trend_chart(df, select_keyword):
     df.index = pd.to_datetime(df['publish_date'],format='%Y-%m-%d')
     df = df['keyword']['2020-01-01':].resample('M').sum()
 
-    # if resampling_num == 'M':
-    #     df = df['keyword']['2020-01-01':].resample('M').sum()
-    # else :
-    #     df = df['keyword']['2020-01-01':].resample(resampling_num + 'D').sum()
-
     res_df = pd.DataFrame(columns=select_keyword,index=df.index)
     for keyword in select_keyword:
         keyword_week_count = []
@@ -133,32 +128,29 @@ def main():
     ## 개요 페이지. (시작 페이지)
     if app_mode == "Home":
 
-        st.title("개요. 시작페이지.")
-        st.subheader("간지나는 글.")
+        st.title("Brunch Networking")
+        st.subheader("부제목")
+        st.write('---')
 
-        # st.title("Brunch Networking")
-        # st.subheader("부제목")
-        # st.write('---')
-        #
-        # st.write(
-        # '''
-        # ## < Content >
-        #
-        # * 브런치라는 서비스
-        # * 작가도 독자중의 한명
-        # * 머신러닝을 활용한 브런치 네트워킹
-        # '''
-        # )
-        # st.write("---")
-        #
-        # st.markdown(
-        # '''
-        # ## 1. 브런치라는 서비스
-        #
-        #
-        #
-        # '''
-        # )
+        st.write(
+        '''
+        ## < Content >
+
+        * 브런치라는 서비스
+        * 작가도 독자중의 한명
+        * 머신러닝을 활용한 브런치 네트워킹
+        '''
+        )
+        st.write("---")
+
+        st.markdown(
+        '''
+        ## 1. 브런치라는 서비스
+
+
+
+        '''
+        )
 
 
 
