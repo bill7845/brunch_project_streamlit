@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import re
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -51,12 +52,16 @@ okt = Okt()
 def okt_tokenizer(text):
     tokens_ko = okt.morphs(text,stem=True)
     return tokens_ko
-
 ## laod tfidf vector
-def load_tfidf_matrix():
+def load_tfidf_train_vect():
     cur_dir = os.path.dirname(__file__)
-    tfidf_matrix_train = pickle.load(open(os.path.join(cur_dir,'pkl_objects','tfidf_matrix_train.pkl'), 'rb'))
-    return tfidf_matrix_train
+    tfidf_train_vect = pickle.load(open(os.path.join(cur_dir,'pkl_objects','tfidf_train_vect.pkl'), 'rb'))
+    return tfidf_train_vect
+
+def load_tfidf_train_matrix():
+    cur_dir = os.path.dirname(__file__)
+    tfidf_train_matrix = pickle.load(open(os.path.join(cur_dir,'pkl_objects','tfidf_train_matrix.pkl'), 'rb'))
+    return tfidf_train_matrix
 
 # 입력받은 문서를 분류하여 분류결과,분류확률 반환
 @st.cache # 분류기 한번 학습시 계속 결과 저장
@@ -67,10 +72,10 @@ def classify(document):
     13:'인문학 철학',14:'쉽게 읽는 역사', 15:'우리집 반려동물', 16:'오늘은 이런 책',
     17:'직장인 현실 조언', 18:'디자인 스토리',19:'감성 에세이'}
 
-    tfidf_matrix_train = load_tfidf_matrix()
+    tfidf_train_vect = load_tfidf_train_vect()
     clf = load_clf()
 
-    X = tfidf_matrix_train.transform([document])
+    X = tfidf_train_vect.transform([document])
     y = clf.predict(X)[0]
 
     proba = clf.predict_proba(X)
@@ -82,11 +87,29 @@ def classify(document):
 def get_categories(label,dict):
     return tuple(dict[label]) # multiselect box에서 사용위해 tuple로 반환
 
-## 추천 시스템
-def find_sim_document(df, count_vect, keyword_mat, input_keywords, top_n=10):
-  input_keywords_mat = count_vect.transform(pd.Series(input_keywords))
+## 추천 시스템_1 작성 글 기반
+def find_sim_document(df, input_document, top_n=3):
+    tfidf_train_vect = load_tfidf_train_vect() # tfidf vector load
+    tfidf_train_matrix = load_tfidf_train_matrix()
 
-  keyword_sim = cosine_similarity(input_keywords_mat, keyword_mat)
+    input_document = re.sub(r'[^a-zA-Zㄱ-힗]',' ',input_document)
+    input_document = re.sub(r'[xa0]','',input_document)
+
+    input_document_mat = tfidf_train_vect.transform(input_document)
+    document_sim = cosine_similarity(input_document_mat, tfidf_train_matrix)
+
+    document_sim_sorted_ind = document_sim.argsort()[:,::-1]
+
+    top_n_sim = document_sim_sorted_ind[:1,:(top_n)]
+    top_n_sim = top_n_sim.reshape(-1)
+
+    return df.iloc[top_n_sim][['text','keyword']]
+
+## 추천 시스템_2 Keyword 기반
+def find_sim_keyword(df, count_vect, keyword_mat, input_keywords, top_n=3):
+  input_keywords_mat = count_vect.transform(pd.Series(input_keywords)) # 입력 받은 키워드를 count_vectorizer
+
+  keyword_sim = cosine_similarity(input_keywords_mat, keyword_mat) # cosine_similarity 계산
 
   keyword_sim_sorted_ind = keyword_sim.argsort()[:,::-1]
 
@@ -190,8 +213,15 @@ def main():
         status = st.radio("분류가 알맞게 되었는지 알려주세요!", ("<select>","맞춤", "틀림")) # <select> 기본값
 
         if status == "맞춤" : # 정답일 경우
-            st.write("분류가 알맞게 되었군요! 추천시스템을 이용해보세요")
+            st.write("분류가 알맞게 되었군요! 추천시스템을 이용해보세요 작성하신 글을 기반으로 다른 작가분의 글을 추천해드려요")
             label,proba_max = classify(document)
+            df = load_data()
+
+            recommended_text = find_sim_document(df, document, top_n=3)
+
+            st.write("")
+            st.write("<작성글 기반 추천글 목록>")
+            st.table(recommended_text)
 
             ## 해당 글에 해당하는 keyword리스트를 가진 dictionary load
             cur_dir = os.path.dirname(__file__)
@@ -206,7 +236,7 @@ def main():
             keyword_submit_button = st.button("keyword 선택 완료",key='select_category') # submit 버튼
 
             if keyword_submit_button: ## keyword 선택 완료 시
-                df = load_data()
+                # df = load_data()
                 keyword_count_vect = load_keyword_count_vect()
                 keyword_mat = load_keyword_mat()
 
@@ -219,7 +249,7 @@ def main():
 
                 select_category_joined = (' ').join(select_category)
 
-                recommended_text = find_sim_document(df, keyword_count_vect, keyword_mat, select_category_joined, top_n=5)
+                recommended_keyword = find_sim_keyword(df, keyword_count_vect, keyword_mat, select_category_joined, top_n=5)
 
                 st.write("")
                 st.write("<추천글 목록>")
@@ -231,6 +261,7 @@ def main():
         elif status == "틀림": # 오답일 경우
             st.write("분류가 잘못되었군요. 피드백을 주신다면 다음부턴 틀리지 않을거예요.")
             label,proba_max = classify(document)
+            df = load_data()
             category_correction = st.selectbox("category 수정하기", category_list) # 오답일 경우 정답을 새로 입력받음
             if category_correction != "<select>": # 오답 수정 부분이 입력 받았을 경우 (default가 아닐경우 => 값을 입력받은 경우)
                 st.write("피드백을 주셔서 감사합니다. 추천 시스템을 이용해보세요")
@@ -248,7 +279,7 @@ def main():
                 keyword_submit_button = st.button("keyword 선택 완료",key='select_category') # submit 버튼
 
                 if keyword_submit_button: ## keyword 선택 완료 시
-                    df = load_data()
+                    # df = load_data()
                     keyword_count_vect = load_keyword_count_vect()
                     keyword_mat = load_keyword_mat()
 
@@ -260,11 +291,11 @@ def main():
 
                     select_category_joined = (' ').join(select_category)
 
-                    recommended_text = find_sim_document(df, keyword_count_vect, keyword_mat, select_category_joined, top_n=5)
+                    recommended_keyword = find_sim_keyword(df, keyword_count_vect, keyword_mat, select_category_joined, top_n=3)
 
                     st.write("")
                     st.write("<추천글 목록>")
-                    st.table(recommended_text)
+                    st.table(recommended_keyword)
 
                     answer = 0 # 맞춤/틀림 여부
                     sqlite_main(document, answer, label, category_correction, select_category_joined) ## 결과 db 저장
