@@ -6,6 +6,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 import pickle
+import json
 import sqlite3
 import os
 from konlpy.tag import Okt
@@ -15,11 +16,6 @@ import konlpy
 import matplotlib as mat
 import seaborn as sns
 import plotly as plt
-
-
-# print(mat.__version__)
-# print(sns.__version__)
-# print(plt.__version__)
 
 
 ## load csv
@@ -81,22 +77,26 @@ def classify(document):
     proba = clf.predict_proba(X)
     proba_max = np.max(proba)
 
-    return label[y],proba_max
+    return label[y],proba_max,y
 
 ## category에 해당하는 keyword 목록 반환
 def get_categories(label,dict):
     return tuple(dict[label]) # multiselect box에서 사용위해 tuple로 반환
 
 ## 추천 시스템_1 작성 글 기반
-def find_sim_document(df, input_document, top_n=3):
-    tfidf_train_vect = load_tfidf_train_vect() # tfidf vector load
-    tfidf_train_matrix = load_tfidf_train_matrix()
+def find_sim_document(df, input_document, y, top_n=3):
+    cur_dir = os.path.dirname(__file__)
+    with open(os.path.join(cur_dir,'pkl_objects','each_vectMatrix_category.json'),encoding='UTF8') as json_file:
+        vect_matrix = json.load(json_file)
+
+    tfidf_vect = vect_matrix[vect]
+    tfidf_matrix = vect_matrix[matrix]
 
     input_document = re.sub(r'[^a-zA-Zㄱ-힗]',' ',input_document)
     input_document = re.sub(r'[xa0]','',input_document)
 
-    input_document_mat = tfidf_train_vect.transform(input_document)
-    document_sim = cosine_similarity(input_document_mat, tfidf_train_matrix)
+    input_document_mat = tfidf_vect.transform([input_document])
+    document_sim = cosine_similarity(input_document_mat, tfidf_matrix)
 
     document_sim_sorted_ind = document_sim.argsort()[:,::-1]
 
@@ -146,22 +146,22 @@ def main():
 
     st.sidebar.title("Menu")
     app_mode = st.sidebar.selectbox("",
-        ["Home", "App 실행", "전체 Code"])
+        ["Home", "App 실행", "Tech" ,"전체 Code"])
 
     ## 개요 페이지. (시작 페이지)
     if app_mode == "Home":
 
         st.title("Brunch Networking")
-        st.subheader("부제목")
+        st.subheader("데이터와 머신러닝으로 작가에게 다가가기")
         st.write('---')
 
         st.write(
         '''
-        ## < Content >
+        ## < 목차 >
 
-        * 브런치라는 서비스
-        * 작가도 독자중의 한명
-        * 머신러닝을 활용한 브런치 네트워킹
+        * "브런치라는 서비스"
+        * "작가도 독자 중 한명이다"
+        * "머신러닝을 활용한 브런치 네트워킹"
         '''
         )
         st.write("---")
@@ -195,7 +195,7 @@ def main():
         ## 1. 문서 입력 후 submit 버튼 클릭 시 분류 모델에 의해 분류라벨,확률값 출력
         #######################################################################
         if submit_button:
-            label,proba_max = classify(document)
+            label,proba_max,y = classify(document)
             st.write('작성하신 글은 %d퍼센트의 확률로 \'%s\' 카테고리로 분류됩니다.' %(round((proba_max)*100),label))
 
         #######################################################################
@@ -214,10 +214,10 @@ def main():
 
         if status == "맞춤" : # 정답일 경우
             st.write("분류가 알맞게 되었군요! 추천시스템을 이용해보세요 작성하신 글을 기반으로 다른 작가분의 글을 추천해드려요")
-            label,proba_max = classify(document)
+            label,proba_max,y = classify(document)
             df = load_data()
 
-            recommended_text = find_sim_document(df, document, top_n=3)
+            recommended_text = find_sim_document(df,document,y,top_n=3)
 
             st.write("")
             st.write("<작성글 기반 추천글 목록>")
@@ -260,7 +260,7 @@ def main():
 
         elif status == "틀림": # 오답일 경우
             st.write("분류가 잘못되었군요. 피드백을 주신다면 다음부턴 틀리지 않을거예요.")
-            label,proba_max = classify(document)
+            label,proba_max,y = classify(document)
             df = load_data()
             category_correction = st.selectbox("category 수정하기", category_list) # 오답일 경우 정답을 새로 입력받음
             if category_correction != "<select>": # 오답 수정 부분이 입력 받았을 경우 (default가 아닐경우 => 값을 입력받은 경우)
@@ -299,6 +299,45 @@ def main():
 
                     answer = 0 # 맞춤/틀림 여부
                     sqlite_main(document, answer, label, category_correction, select_category_joined) ## 결과 db 저장
+
+
+    elif app_mode == "Tech":
+        st.title("Brunch Networking Tech")
+        st.write("subheader")
+        st.write("---")
+
+        st.write(
+        '''
+        ## < 목차 >
+
+        * 데이터 수집
+        * 데이터 전처리
+        * 분류 모델
+        * 추천 시스템
+        * streamlit을 활용한 API
+        '''
+        )
+        st.write("---")
+
+        st.write("")
+        st.write("")
+
+        st.markdown(
+        " ## 1. 데이터 수집 \n"
+
+        "Bruch Networking 프로젝트를 진행하며 경험한 데이터 수집-정제-분석-적용 전체 과정을 설명하고자 합니다. \n"
+        "전체 code는 sourceCode 섹션에서 확인하실 수 있습니다. \n"
+
+        "먼저, 프로젝트를 위해 필요한 데이터를 정의합니다. text 자동 분류와 추천시스템 구현이 목적이므로 아래와 같이 필요 데이터를 정의했습니다 \n "
+
+
+
+
+
+
+
+        )
+
 
     ## code review 페이지.
     elif app_mode == "전체 Code":
