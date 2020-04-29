@@ -87,10 +87,8 @@ def get_categories(label,dict):
 ## 추천 시스템_1 작성 글 기반
 def find_sim_document(df, input_document, y, top_n=3):
     cur_dir = os.path.dirname(__file__)
-
-
-    tfidf_vect = vect_matrix[vect]
-    tfidf_matrix = vect_matrix[matrix]
+    tfidf_vect = pickle.load(open(os.path.join(cur_dir,'pkl_objects/each_vect',str(y)+'tfidf_vect.pkl'), 'rb'))
+    tfidf_matrix = pickle.load(open(os.path.join(cur_dir,'pkl_objects/each_matrix',str(y)+'tfidf_matrix.pkl'), 'rb'))
 
     input_document = re.sub(r'[^a-zA-Zㄱ-힗]',' ',input_document)
     input_document = re.sub(r'[xa0]','',input_document)
@@ -103,7 +101,11 @@ def find_sim_document(df, input_document, y, top_n=3):
     top_n_sim = document_sim_sorted_ind[:1,:(top_n)]
     top_n_sim = top_n_sim.reshape(-1)
 
-    return df.iloc[top_n_sim][['text','keyword']]
+    res_df = df[df['class'] == y].iloc[top_n_sim][['text','keyword']]
+
+    res_df['text'] = re.sub(r'[^a-zA-Zㄱ-힗]',' ',res_df[['text']])
+
+    return res_df
 
 ## 추천 시스템_2 Keyword 기반
 def find_sim_keyword(df, count_vect, keyword_mat, input_keywords, top_n=3):
@@ -221,7 +223,7 @@ def main():
             label,proba_max,y = classify(document)
             df = load_data()
 
-            recommended_text = find_sim_document(df,document,y,top_n=3)
+            recommended_text = find_sim_document(df,document,y,top_n=1)
 
             st.write("")
             st.write("<작성글 기반 추천글 목록>")
