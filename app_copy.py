@@ -1,4 +1,5 @@
 import streamlit as st
+from pathlib import Path
 import pandas as pd
 import numpy as np
 import re
@@ -86,8 +87,7 @@ def get_categories(label,dict):
 ## 추천 시스템_1 작성 글 기반
 def find_sim_document(df, input_document, y, top_n=3):
     cur_dir = os.path.dirname(__file__)
-    with open(os.path.join(cur_dir,'pkl_objects','each_vectMatrix_category.json'),encoding='UTF8') as json_file:
-        vect_matrix = json.load(json_file)
+
 
     tfidf_vect = vect_matrix[vect]
     tfidf_matrix = vect_matrix[matrix]
@@ -140,6 +140,10 @@ def sqlite_main(document, answer, pred_label, correction_label, keyword_select):
     " VALUES (?, ?, ?, ?, ?, DATETIME('now'))", (document, answer, pred_label, correction_label, keyword_select))
     conn.commit()
     conn.close()
+
+## read markdown.md
+def read_markdown_file(markdown_file):
+    return Path(markdown_file).read_text(encoding='UTF8')
 
 ## main 함수
 def main():
@@ -322,22 +326,8 @@ def main():
         st.write("")
         st.write("")
 
-        st.markdown(
-        " ## 1. 데이터 수집 \n"
-
-        "Bruch Networking 프로젝트를 진행하며 경험한 데이터 수집-정제-분석-적용 전체 과정을 설명하고자 합니다. \n"
-        "전체 code는 sourceCode 섹션에서 확인하실 수 있습니다. \n"
-
-        "먼저, 프로젝트를 위해 필요한 데이터를 정의합니다. text 자동 분류와 추천시스템 구현이 목적이므로 아래와 같이 필요 데이터를 정의했습니다 \n "
-
-
-
-
-
-
-
-        )
-
+        readme_text = read_markdown_file("tech_markdown.md")
+        st.markdown(readme_text,unsafe_allow_html=True)
 
     ## code review 페이지.
     elif app_mode == "전체 Code":
