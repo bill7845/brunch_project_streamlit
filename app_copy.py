@@ -101,9 +101,15 @@ def find_sim_document(df, input_document, y, top_n=3):
     top_n_sim = document_sim_sorted_ind[:1,:(top_n)]
     top_n_sim = top_n_sim.reshape(-1)
 
-    res_df = df[df['class'] == y].iloc[top_n_sim][['text','keyword']]
+    res_df = df[df['class'] == y].iloc[top_n_sim][['title','text','keyword','url']]
 
-    res_df['text'] = re.sub(r'[^a-zA-Zㄱ-힗]',' ',res_df[['text']])
+    test_list = []
+    for text in res_df['text']:
+        text = re.sub(r'[xa0]','',text)
+        text = re.sub(r'[^0-9a-zA-Zㄱ-힗]',' ',text)
+        text = text[:200]
+        test_list.append(text)
+    res_df['text'] = test_list
 
     return res_df
 
@@ -118,7 +124,17 @@ def find_sim_keyword(df, count_vect, keyword_mat, input_keywords, top_n=3):
   top_n_sim = keyword_sim_sorted_ind[:1,:(top_n)]
   top_n_sim = top_n_sim.reshape(-1)
 
-  return df.iloc[top_n_sim][['text','keyword']]
+  res_df = df.iloc[top_n_sim][['title','text','keyword','url']]
+
+  test_list = []
+  for text in res_df['text']:
+      text = re.sub(r'[xa0]','',text)
+      text = re.sub(r'[^0-9a-zA-Zㄱ-힗]',' ',text)
+      text = text[:200]
+      test_list.append(text)
+  res_df['text'] = test_list
+
+  return res_df
 
 ## keyword trend 차트
 def keyword_trend_chart(df, select_keyword):
@@ -223,7 +239,7 @@ def main():
             label,proba_max,y = classify(document)
             df = load_data()
 
-            recommended_text = find_sim_document(df,document,y,top_n=1)
+            recommended_text = find_sim_document(df,document,y,top_n=3)
 
             st.write("")
             st.write("<작성글 기반 추천글 목록>")
@@ -259,7 +275,7 @@ def main():
 
                 st.write("")
                 st.write("<추천글 목록>")
-                st.table(recommended_text)
+                st.table(recommended_keyword)
 
                 answer = 1 # 맞춤/틀림 여부
                 sqlite_main(document, answer, label, None, select_category_joined) ## 결과 db 저장
