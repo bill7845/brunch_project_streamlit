@@ -224,21 +224,147 @@ for idx,writer in enumerate(writer_list):
 
 이미지이미지..
 
+<br> 이제 필요한 데이터 수집이 완료되었습니다. 수집한 데이터의 일부를 확인해봅니다.
 
-카테고리별로 게시글의 수가 다르기 때문에 무한스크롤의 횟수를 조건으로 각각 어느정도의 데이터를 수집하였습니다. 수집한 데이터를 간단한 전처리를 거쳐 DataFrame형식으로
-만들었고 아래의 이미지와 같습니다. 전처리 부분은 바로 이어서 설명하겠습니다.
+~~~python
+import pandas as pd
+import json
+import os
 
-<img src = "https://user-images.githubusercontent.com/35517797/80506298-587c1e00-89b0-11ea-9602-c63c1526b109.PNG" height="330" width="700px">
+## 멋진_캘러그래피 load
+with open('~~path~~/멋진_캘리그래피.json',encoding='UTF8') as json_file:
+    json_data = json.load(json_file)
+~~~
+
+<img src = "https://user-images.githubusercontent.com/35517797/80673346-0b9c6280-8aea-11ea-88f1-443916a347a5.PNG" height="330" width="700px">
+
+<br><br>
+
+불러온 json데이터를 분석에 편리하도록 pandas의 DataFrame형식으로 변환해 줍니다.
+
+~~~python
+df = pd.DataFrame(json_data['data'],
+                  columns=['title','keyword','text','nickname','publish_date','likes','share','comment','url','url_plink'])
+
+df.head(3)
+~~~
+
+<img src = "https://user-images.githubusercontent.com/35517797/80673586-a432e280-8aea-11ea-9ac2-083ae8167876.PNG" height="330" width="700px">
+
+<br><br>
+
+DataFrame형식으로 불러왔음에도 아직 지저분한 부분이 많이 있습니다. 본격적인 Text 전처리에 앞서 데이터 "잔처리"를 진행해줍니다. 아울러 이 작업을 24개 전체 카테고리에 한번에 적용합니다.
+
+* text column : 결측값 삭제 , 기존 문장단위의 리스트 형식에서 전체 문자열 형식으로 변환
+* keyword column : \n, 공백 제거 후 리스트 형식으로 변환
+* comment column : comment가 없는경우 공백이 아닌 Nan으로 변환
+* publish_date column : datetime형식으로 변환
+
+~~~python
+import pandas as pd
+import json
+import os
+
+dir_name = '~~path~~/brunch_data/json'
+
+def get_file_list(dir_name): # file name들을 가져오는 함수 # 폴더명 인자 # 폴더가 위치한 경로를 인자로
+    return os.listdir(dir_name) # 폴더 내 파일명을 리스트 형태로 반환
+
+file_list = get_file_list(dir_name) # 카테고리별 json파일. 총 24개
+
+## keyword column 전처리
+def pre_keyword(x):
+    tmp = []
+    for val in x:
+      tmp.append(val.replace("\n","").replace(" ",""))
+    return tmp
+
+## comment column 전처리
+def pre_comment(x):
+    if len(x) == 0:
+        return None
+    else :
+        return x
+
+## text column 전처리
+def pre_text(x):
+    return str(x)
+
+## publish date column 전처리
+def pre_datetime(x):
+    x = x.split('T')[0]
+    x = pd.to_datetime(x,format="%Y-%m-%d")
+    return x
+
+## 카테고리명. 즉, class를 0~19로 mapping할 것임.
+class_condition = {'지구한바퀴_세계여행':0 , '그림·웹툰':1, '시사·이슈':2, 'IT_트렌드':3, '사진·촬영':4, '취향저격_영화_리뷰':5,
+                   '뮤직_인사이드':6, '육아_이야기':7, '요리·레시피':8, '건강·운동':9, '멘탈_관리_심리_탐구':10, '문화·예술':11, '건축·설계':12,
+                   '인문학·철학':13, '쉽게_읽는_역사':14, '우리집_반려동물':15, '글쓰기_코치':16, '오늘은_이런_책':16, '직장인_현실_조언':17, '스타트업_경험담':17,
+                   '디자인_스토리':18, '멋진_캘리그래피':18, '사랑·이별':19, '감성_에세이':19}
+
+all_df = pd.DataFrame(columns=['class','text']) # contcat 위한 비어있는 DataFrame
+each_df = {}
+for file in file_list:
+    with open('~~path~~/brunch_data/json/'+file,encoding='UTF8') as json_file:
+        json_data = json.load(json_file)
+    ## 각 카테고리별 data에 전처리 함수 적용 후 concat
+    df = pd.DataFrame(json_data['data'],
+                  columns=['title','keyword','text','nickname','publish_date','likes','share','comment','url','url_plink'])
+    df = df.dropna(subset=['text'])
+    df['keyword'] = df['keyword'].apply(pre_keyword)
+    df['comment'] = df['comment'].apply(pre_comment)
+    df['text'] = df['text'].apply(pre_text)
+    df['publish_date'] = df['publish_date'].apply(pre_datetime)
+    df.insert(0,"class",file[:-5])
+    df['class'] = df['class'].map(class_condition)
+
+    all_df = pd.concat([all_df,df[['class','title','text','keyword','publish_date','likes','share','comment','url']][:2000]]) # 비어있는 all_df에 각 카테고리별 df concat
+    each_df[file[:-5]] = df
+
+
+all_df = all_df.reset_index(drop=True) # 전체 index 초기화
+~~~
+
+<img src = "https://user-images.githubusercontent.com/35517797/80689481-62189980-8b08-11ea-97e6-e223112ad1d5.PNG" height="400" width="720px">
+
+<br><br>
+
+"잔처리"가 완료되어 어느정도 깔끔해진 데이터를 얻은것을 확인할 수 있습니다.
+
+<br><br>
+
+## <b> 2. text 전처리 </b>
 
 <br>
+
+### <b> 2.1 텍스트 토큰화(Tokenize) </b>
+
 <br>
 
-## 2. Text 데이터 전처리
+이제 데이터 잔처리를 마쳤으니 본격적인 텍스트 분석을 시작합니다. 그 전에 데이터를 Train/Test로 분할한 후 진행하겠습니다. <br>
+현재 수집한 Text 데이터를 살펴보면 ax00,\n.. 등 여러 잡다한 용어들이 섞여있습니다. 우선은 이런 "불용어"를 제거한 후 text 데이터를 "단어 단위"로 토큰화 하겠습니다.
 
 <br>
 
-크롤링 첫 단계에서 수집된 데이터는 여러가지 "잔"처리를 해주어야 합니다. 제가 만든 크롤러의 경우에 2단계의 과정을 거쳐야 하기 때문에 pickle과 json형식을 주로 사용하였으며, pandas 라이브러리를 주로 활용하였습니다. 이제 기초적인 "잔"처리 단계가 끝나면 위 이미지와 같은 데이터 형태를 얻게되고, text분석을 위한 전처리 단계에 돌입해야 합니다.
+<b> 1. stopwords 제거(불용어 제거) </b> <br>
+<b> 2. konlpy의 Okt 형태소 분석기를 이용한 text tokenizing </b>
 
-### 2.1 토큰화(Tokenization)
+현재 수집한 데이터는 한글 데이터입니다. 한글 데이터 처리에 유용한 Konlpy의 Okt를 사용하여 형태소 분석을 진행합니다. 또, 한글의 stopwords는 -여기-에서 참조하였습니다.
 
-토큰화란, 분석하고자하는 문서를 문장 혹은 단어 단위로 분리해내는것을 의미합니다.
+~~~python
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test = train_test_split(all_df['text'],all_df['class'],test_size=0.2 ,shuffle=True)
+
+import re
+train_data = []
+for sentence in X_train:
+    sentence = re.sub(r'[^a-zA-Zㄱ-힗]',' ',sentence)
+    sentence = re.sub(r'[xa0]','',sentence)
+    train_data.append(sentence)
+
+from konlpy.tag import Okt
+okt = Okt()
+def okt_tokenizer(text):
+    tokens_ko = okt.morphs(text,stem=True)
+    return tokens_ko
+~~~
