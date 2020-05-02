@@ -41,7 +41,7 @@ def load_keyword_mat():
 ## load classifier
 def load_clf():
     cur_dir = os.path.dirname(__file__)
-    clf = pickle.load(open(os.path.join(cur_dir,'pkl_objects','classifier.pkl'), 'rb'))
+    clf = pickle.load(open(os.path.join(cur_dir,'pkl_objects','classifier_logistic.pkl'), 'rb'))
     return clf
 
 ## 형태소 분석기
@@ -71,6 +71,8 @@ def classify(document):
 
     tfidf_train_vect = load_tfidf_train_vect()
     clf = load_clf()
+
+    # print(tfidf_train_vect.shape())
 
     X = tfidf_train_vect.transform([document])
     y = clf.predict(X)[0]
