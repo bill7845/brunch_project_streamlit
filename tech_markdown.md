@@ -349,12 +349,13 @@ all_df = all_df.reset_index(drop=True) # 전체 index 초기화
 <b> 1. stopwords 제거(불용어 제거) </b> <br>
 <b> 2. konlpy의 Okt 형태소 분석기를 이용한 text tokenizing </b>
 
-현재 수집한 데이터는 한글 데이터입니다. 한글 데이터 처리에 유용한 Konlpy의 Okt를 사용하여 형태소 분석을 진행합니다. 또, 한글의 stopwords는 -여기-에서 참조하였습니다.
+현재 수집한 데이터는 한글 데이터입니다. 한글 처리에 유용한 Konlpy의 Okt를 사용하여 형태소 분석을 진행합니다. 한글 stopwords는 -여기-에서 참조하였습니다.
 
 ~~~python
 from sklearn.model_selection import train_test_split
 X_train,X_test,y_train,y_test = train_test_split(all_df['text'],all_df['class'],test_size=0.2 ,shuffle=True)
 
+## train 데이터 1차 불용어 처리 ( ex. xa0, 특수문자 등..)
 import re
 train_data = []
 for sentence in X_train:
@@ -362,9 +363,59 @@ for sentence in X_train:
     sentence = re.sub(r'[xa0]','',sentence)
     train_data.append(sentence)
 
+## test 데이터 1차 불용어 처리 ( ex. xa0, 특수문자 등..)
+test_data = []
+for sentence in X_test:
+    sentence = re.sub(r'[^a-zA-Zㄱ-힗]',' ',sentence)
+    sentence = re.sub(r'[xa0]','',sentence)
+    test_data.append(sentence)
+
 from konlpy.tag import Okt
 okt = Okt()
 def okt_tokenizer(text):
     tokens_ko = okt.morphs(text,stem=True)
     return tokens_ko
 ~~~
+
+<br>
+
+### <b> 2.2 피처 벡터화(Feature Vectorize)</b>
+
+<br>
+
+한글 형태소 분석을 위한 tokenizer와 stopwords를 세팅한 후, 피처 벡터화를 진행합니다. 피처 벡터화를 간단히 설명하면 비정형 데이터인 텍스트 데이터를 word(또는 word의 일부분) 기반의 다수의 피처로 추출하고 이 피처에 단어 빈도수와 같은 숫자 값을 부여하여 텍스트 데이터를 단어의 조합인 벡터값으로 표현하는것을 의미합니다. <br>
+
+피처 벡터화 방법에는 크게 2가지(BOW, Word2Vec)의 방법이 있습니다. 이중에서 BOW방식은 문서가 가지는 모든 단어(words)를 문맥이나 순서를 무시하고 일괄적으로 단어에 대해 빈도 값을 부여해 피처값을 추출합니다. 단순히 단어의 발생 횟수에 기반하고 있지만 문서의 특징을 잘 나타낼수 있는 모델이므로 Brunch Networing의 Text Classifier기능 구현을 위한 모델로 BOW 방식의 TF-IDF 방식을 사용하였습니다.
+
+~~~python
+from sklearn.feature_extraction.text import TfidfVectorizer
+
+k_stopwords = pd.read_csv("~~path~~/k_stopwords.csv",sep='\t',header=None)
+k_stopwords = list(k_stopwords.iloc[:,0]) # 불용어 리스트
+
+tfidf_vect = TfidfVectorizer(tokenizer=okt_tokenizer, min_df=3, max_df=0.9, stop_words=k_stopwords)
+tfidf_vect.fit(train_data) # vector
+tfidf_train_matrix = tfidf_vect.transform(train_data) # train matrix
+
+tfidf_test_matrix = tfidf_vect.trnasform(test_data) # test matrix
+
+path = '~~path~~'
+pickle.dump(tfidf_vect, open(os.path.join(path,'tfidf_train_vect.pkl'),'wb'), protocol=4) ## train vector 저장
+pickle.dump(tfidf_train_matrix, open(os.path.join(path,'tfidf_train_matrix.pkl'),'wb'),protocol=4) ## train matrix 저장
+pickle.dump(tfidif_test_matrix, open(os.path.join(path,'tfidif_test_matrix.pkl'),'wb'),protocol=4)## test matrix 저장
+~~~
+
+<br>
+
+## <b> 3. Modeling </b>
+
+<br>
+
+데이터 전처리를 마친 후 모델 구축 및 파라미터 최적화, 모델 선택.적용 단계를 시작합니다.
+
+* Logistic Regression
+* KNN
+* SVM
+* RandomForest
+* Xgboost
+* LightGBM
