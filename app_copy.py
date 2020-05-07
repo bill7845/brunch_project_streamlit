@@ -18,6 +18,8 @@ import matplotlib as mat
 import seaborn as sns
 import plotly as plt
 
+import sys
+print(sys.version)
 
 ## load csv
 # @st.cache
@@ -175,33 +177,8 @@ def main():
     ## 개요 페이지. (시작 페이지)
     if app_mode == "Home":
 
-        st.title("Brunch Networking")
-        st.subheader("데이터와 머신러닝으로 작가에게 다가가기")
-        st.write('---')
-
-        st.write(
-        '''
-        ## < 목차 >
-
-        * "브런치라는 서비스"
-        * "작가도 독자 중 한명이다"
-        * "머신러닝을 활용한 브런치 네트워킹"
-        '''
-        )
-        st.write("---")
-
-        st.markdown(
-        '''
-        ## 1. 브런치라는 서비스
-
-
-
-        '''
-        )
-
-
-
-
+        readme_text = read_markdown_file("main_markdown.md")
+        st.markdown(readme_text,unsafe_allow_html=True)
 
 
     ## app 실행 페이지.
