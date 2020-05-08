@@ -73,9 +73,6 @@ def classify(document):
 
     tfidf_train_vect = load_tfidf_train_vect()
     clf = load_clf()
-
-    # print(tfidf_train_vect.shape())
-
     X = tfidf_train_vect.transform([document])
     y = clf.predict(X)[0]
 
@@ -303,26 +300,6 @@ def main():
 
 
     elif app_mode == "Tech":
-        st.title("Brunch Networking Tech")
-        st.write("subheader")
-        st.write("---")
-
-        st.write(
-        '''
-        ## < 목차 >
-
-        * 데이터 수집
-        * 데이터 전처리
-        * 분류 모델
-        * 추천 시스템
-        * streamlit을 활용한 API
-        '''
-        )
-        st.write("---")
-
-        st.write("")
-        st.write("")
-
         readme_text = read_markdown_file("tech_markdown.md")
         st.markdown(readme_text,unsafe_allow_html=True)
 

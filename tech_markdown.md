@@ -1,45 +1,67 @@
+# Brunch Networking Tech
+## subheader
+---
+
+<br>
+
+## < 목차 >
+
+* 1. 데이터 수집
+* 2. 데이터 전처리
+  - 2-1. 데이터 클렌징
+  - 2-2. 텍스트 데이터 전처리
+* 3. 분류 모델
+* 4. 추천 시스템
+  - 4.1 입력 데이터 기반
+  - 4.2 키워드 기반
+* 5. streamlit을 활용한 API <br>
+
+---
+
+<br>
+
 ## <b> 1. 데이터 수집 </b>
+<br>
+
+Bruch Networking 프로젝트를 진행하며 경험한 데이터 수집-정제-분석-적용의 전체 과정을 설명하고자 합니다.
 
 <br>
 
-Bruch Networking 프로젝트를 진행하며 경험한 데이터 수집-정제-분석-적용 전체 과정을 설명하고자 합니다. 전체 code는 github에서 확인하실 수 있습니다.
-
-<br>
-<br>
+<!-- <img src = "https://user-images.githubusercontent.com/35517797/80509879-f1149d00-89b4-11ea-939d-5eb1af734319.png" height="300" width="650px"> -->
 
 
-<img src = "https://user-images.githubusercontent.com/35517797/80509879-f1149d00-89b4-11ea-939d-5eb1af734319.png" height="300" width="650px">
-
-<br>
-<br>
-<br>
-
-먼저, 프로젝트를 위해 필요한 데이터를 정의합니다. text 자동 분류와 추천시스템 구현이 주된 목적이므로 아래와 같이 필요한 데이터를 정의했습니다.
+먼저, 프로젝트를 위해 필요한 데이터를 정의합니다. 프로젝트의 주된 목표는 `text 자동분류`, `text 추천시스템` 2가지입니다. 이에 맞춰 필요한 데이터를 우선적으로 정의합니다.
 
 <br>
 
-* <b> 전체 20개 카테고리의 각 카테고리별 게시글 </b>
-* <b> 게시글 별 정보(제목,발행일,공유횟수,좋아요수,keyword,댓글 ...) </b>
-
-<br>
-<br>
-
-이렇게 필요 데이터를 정의한 후 본격적으로 크롤링 코드를 구현합니다. 브런치의 카테고리별 게시글page의 경우 "무한스크롤" javaScript가 구현되어 있습니다.
-javaScript를 제어하기 위해서는 BeautifulSoup만으로는 불가능하므로 시간이 더 소요될 수 있지만 Selenium패키지를 사용해야 합니다.
+* <b> Brunch에 게시된 게시글(20개 카테고리별) </b>
+* <b> 각 게시글 별 정보(제목,발행일,공유횟수,좋아요수,keyword,댓글 ...) </b>
 
 <br>
 
-<b> 1. 카테고리별 게시글 목록 page => 게시글 별 작가 id(url) parsing </b> <br>
-<b> 2. 각 게시글 page => text, 제목, 발행일 등의 정보를 parsing </b>
+이렇게 필요 데이터를 정의한 후 크롤링 코드를 구합니다. 브런치의 카테고리별 게시글page의 경우 "무한스크롤" javaScript가 구현되어 있습니다.
+javaScript를 제어하기 위해서는 BeautifulSoup만으로는 불가능하므로 시간이 더 소요될 수 있지만 Selenium패키지를 사용해야 합니다. 전체 크롤링 과정을 요약하면 크게 2단계로 요약할 수 있습니다.
+
+<br>
+
+* <b> 1. 카테고리별 게시글 목록 page => 게시글 별 작가 id(url) parsing </b> <br>
+* <b> 2. 각 게시글 page => text, 제목, 발행일 등의 정보를 parsing </b>
+
+<br>
+
+<img src = "https://user-images.githubusercontent.com/35517797/81310986-c5359d80-90bf-11ea-874c-7473a9b910b0.PNG" height="300" width="650px">
 
 <br>
 <br>
 
-위 두 과정을 코드와 함께보면 다음과 같습니다. 첫번째로, 개별 카테고리 -> 전체 url 정보를 수집하여 pickle 형식으로 저장합니다.
+2단계의 크롤링을 코드로 구현합니다.
+
+<br>
 
 ~~~python
 ###################################################################
 ########################### 크롤링 1단계 ###########################
+#####카테고리별 게시글 목록 page => 게시글 별 작가 id(url) parsing ###
 ###################################################################
 import time
 import requests
@@ -104,12 +126,14 @@ for category in category_list:
 
 <br>
 
-이미지이미지...
-크롤링 두번째 단계로, 저장한 게시글 url pickle파일을 불러와 각각의 게시글 속 정보를 수집합니다.
+1단계 크롤링의 결과로 20개 카테고리별 게시글 url을 담은 리스트를 얻었습니다. 이제 각 게시글 정보를 수집하여 json 파일로 저장합니다.
+
+<br>
 
 ~~~python
 ###################################################################
 ########################### 크롤링 2단계 ###########################
+###   각 게시글 page => text, 제목, 발행일 등의 정보를 parsing ######
 ###################################################################
 ## url pickle load
 pickles = ['지구한바퀴_세계여행?q=g','그림·웹툰?q=g','시사·이슈?q=g','IT_트렌드?q=g','사진·촬영?q=g',
@@ -121,7 +145,7 @@ pickles = ['지구한바퀴_세계여행?q=g','그림·웹툰?q=g','시사·이�
 writer_list = []
 for file in pickles:
 #     print(file)
-    with open('C:/Users/KIHyuk/Desktop/brunch_data/user_id/'+file[:-4]+"_userId.txt","rb") as fr:
+    with open('~~path~~/'+file[:-4]+"_userId.txt","rb") as fr:
         writers = pickle.load(fr)
     writer_list.append(writers)  ## [[카테고리1 게시글 url...],[카테고리2 게시글 url], ....[카테고리24 게시글 url]]
 
@@ -222,25 +246,19 @@ for idx,writer in enumerate(writer_list):
         json.dump(to_json,make_file)
 ~~~
 
-이미지이미지..
+<br>
 
-<br> 이제 필요한 데이터 수집이 완료되었습니다. 수집한 데이터의 일부를 확인해봅니다.
+이제 필요한 데이터 수집이 완료되었습니다. "멋진 캘리그래피"의 수집결과를 확인해 보겠습니다. 수집한 데이터는 json 형식으로 저장하였습니다.
 
-~~~python
-import pandas as pd
-import json
-import os
+<br>
 
-## 멋진_캘러그래피 load
-with open('~~path~~/멋진_캘리그래피.json',encoding='UTF8') as json_file:
-    json_data = json.load(json_file)
-~~~
-
-<img src = "https://user-images.githubusercontent.com/35517797/80673346-0b9c6280-8aea-11ea-88f1-443916a347a5.PNG" height="330" width="700px">
+<img src = "https://user-images.githubusercontent.com/35517797/81311751-c1564b00-90c0-11ea-9e04-63f470549612.PNG" height="330" width="700px">
 
 <br><br>
 
-불러온 json데이터를 분석에 편리하도록 pandas의 DataFrame형식으로 변환해 줍니다.
+불러온 json데이터를 분석에 편리하도록 pandas의 DataFrame 형식으로 변환해 줍니다.
+
+<br>
 
 ~~~python
 df = pd.DataFrame(json_data['data'],
@@ -249,16 +267,24 @@ df = pd.DataFrame(json_data['data'],
 df.head(3)
 ~~~
 
+<br>
+
 <img src = "https://user-images.githubusercontent.com/35517797/80673586-a432e280-8aea-11ea-9ac2-083ae8167876.PNG" height="330" width="700px">
 
 <br><br>
 
-DataFrame형식으로 불러왔음에도 아직 지저분한 부분이 많이 있습니다. 본격적인 Text 전처리에 앞서 데이터 "잔처리"를 진행해줍니다. 아울러 이 작업을 24개 전체 카테고리에 한번에 적용합니다.
+<br>
 
-* text column : 결측값 삭제 , 기존 문장단위의 리스트 형식에서 전체 문자열 형식으로 변환
-* keyword column : \n, 공백 제거 후 리스트 형식으로 변환
-* comment column : comment가 없는경우 공백이 아닌 Nan으로 변환
-* publish_date column : datetime형식으로 변환
+## <b> 2-1 데이터 클렌징 </b>
+
+<br>
+
+DataFrame형식으로 불러왔음에도 아직 지저분한 부분이 많이 있습니다. 본격적인 Text 데이터 전처리에 앞서 데이터 "잔처리"를 진행해줍니다. 아울러 이 작업을 24개 전체 카테고리에 한번에 적용합니다.
+
+* <b> ext column : 결측값 삭제 , 기존 문장단위의 리스트 형식에서 전체 문자열 형식으로 변환 </b>
+* <b> keyword column : \n, 공백 제거 후 리스트 형식으로 변환 </b>
+* <b> comment column : comment가 없는경우 공백이 아닌 Nan으로 변환 </b>
+* <b> publish_date column : datetime형식으로 변환 </b>
 
 ~~~python
 import pandas as pd
@@ -325,26 +351,79 @@ for file in file_list:
 all_df = all_df.reset_index(drop=True) # 전체 index 초기화
 ~~~
 
+<br><br>
+
 <img src = "https://user-images.githubusercontent.com/35517797/80689481-62189980-8b08-11ea-97e6-e223112ad1d5.PNG" height="400" width="720px">
 
 <br><br>
 
 "잔처리"가 완료되어 어느정도 깔끔해진 데이터를 얻은것을 확인할 수 있습니다.
 
+<br>
+
+## <b> 2-2 text 데이터 전처리 </b>
+
+<br>
+
+이제 프로젝트의 핵심인 Text 데이터 전처리를 진행합니다. 현재 수집된 텍스트 데이터는 "https, www, ax0, ... "등의 의미없는 요소들을 제거하고 Text를 머신러닝 알고리즘이 이해할수 있는 형태로 변환하여야 합니다. 이 과정을 크게 3가지 과정으로 진행하겠습니다.
+
+* <b> 정제 </b>
+* <b> 토큰화 </b>
+* <b> 벡터화 </b>
+
+<br>
+
+### <b> 2-2-2 text 정제(cleaning) </b>
+
+<br>
+
+현재 수집된 text 데이터 일부를 살펴보겠습니다. 아직 정제를 하지 않았기 때문에 xa0, [], '', http, url주소, 특수문자 등 의미없는 요소들이 가득합니다. 우선 의미없는 요소들을 `정규식`을 활용하여 제거하겠습니다. 그 후에 영상이나 이미지를 소개하는게 주목적들인 글들을 제거해줍니다(text 200자 이하인 글들)
+
+<br>
+
+<img src = "https://user-images.githubusercontent.com/35517797/81373183-192f9900-9137-11ea-9ad5-48009b01481c.PNG" height="400" width="720px">
+
 <br><br>
 
-## <b> 2. text 전처리 </b>
+~~~python
+import re
+
+# 정규식 적용 함수
+def pre_text_2(x):
+  pa = re.compile("^\\\\xa0|xa") # xa0, xa 제거
+  pa1 = re.compile(r"'http.*?'") # url 제거
+  pa2 = re.compile(r'\([^)]*\)') # (), ()사이 문자
+  pa3 = re.compile('[^\w\s]') # 특수문자 삭제
+  pa4 = re.compile(r'[^a-zA-Zㄱ-힗]') # 한글,영어만 남김
+
+  x = re.sub(pa,' ',x)
+  x = re.sub(pa1,' ',x)
+  x = re.sub(pa2,' ',x)
+  x = re.sub(pa3, ' ',x)
+  x = re.sub(pa4, ' ',x)
+  x = x.strip()
+  x = " ".join(x.split())
+
+  return x
+
+all_df['text'] = all_df['text'].apply(pre_text_2)
+
+### text 200자 이하인 글들. (주로 영상,이미지 자료 올려놓은 글들임. 제거)
+del_list = []
+for idx,text in enumerate(all_df['text']):
+  if len(text) < 200:
+    del_list.append(idx)
+
+all_df = all_df.loc[~all_df.index.isin(del_list), :]
+~~~
 
 <br>
 
-### <b> 2.1 텍스트 토큰화(Tokenize) </b>
+<img src = "https://user-images.githubusercontent.com/35517797/81410983-9cbfa900-917c-11ea-81d2-f208690170df.PNG" height="400" width="720px">
 
 <br>
 
-이제 데이터 잔처리를 마쳤으니 본격적인 텍스트 분석을 시작합니다. 그 전에 데이터를 Train/Test로 분할한 후 진행하겠습니다. <br>
-현재 수집한 Text 데이터를 살펴보면 ax00,\n.. 등 여러 잡다한 용어들이 섞여있습니다. 우선은 이런 "불용어"를 제거한 후 text 데이터를 "단어 단위"로 토큰화 하겠습니다.
 
-<br>
 
 <b> 1. stopwords 제거(불용어 제거) </b> <br>
 <b> 2. konlpy의 Okt 형태소 분석기를 이용한 text tokenizing </b>
