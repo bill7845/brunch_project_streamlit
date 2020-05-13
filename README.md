@@ -11,4 +11,4 @@
 <br>
 
 - <b> Brucn Networking 동영상 가이드(이미지 => 영상링크) </b>
-[![Video Label](https://img.youtube.com/vi/RpEBgY3_stA/0.jpg)](https://youtu.be/RpEBgY3_stA?t=0s)
+[![Video Label](https://img.youtube.com/vi/RpEBgY3_stA/0.jpg)](https://youtu.be/RpEBgY3_stA)
