@@ -5,10 +5,12 @@
 <br>
 
 - <b> Main Flow </b>
+
 <img src = "https://user-images.githubusercontent.com/35517797/81781137-a35e6f80-9532-11ea-85b7-f8c862ccff58.PNG">
 
 <br>
 <br>
 
 - <b> Brucn Networking 동영상 가이드(이미지 => 영상링크) </b>
+
 [![Video Label](https://img.youtube.com/vi/RpEBgY3_stA/0.jpg)](https://youtu.be/RpEBgY3_stA)
