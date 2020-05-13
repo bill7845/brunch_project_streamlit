@@ -4,12 +4,16 @@
 
 <br>
 
-- <b> Main Flow </b>
+- <b> 전체 흐름도 </b>
 
 <img src = "https://user-images.githubusercontent.com/35517797/81781137-a35e6f80-9532-11ea-85b7-f8c862ccff58.PNG">
 
 <br>
 <br>
+
+## 1. 데이터 학습 및 모델링 
+
+
 
 - <b> Brucn Networking 동영상 가이드(아래 이미지 클릭시 영상 가이드) </b>
 
