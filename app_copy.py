@@ -177,9 +177,9 @@ def main():
         readme_text = read_markdown_file("main_markdown.md")
         st.markdown(readme_text,unsafe_allow_html=True)
 
-        # video_file = open('테스트비디오.mp4', 'rb')
-        # video_bytes = video_file.read()
-        # st.video(video_bytes)
+        video_file = open('테스트비디오.mp4', 'rb')
+        video_bytes = video_file.read()
+        st.video(video_bytes)
 
     ## app 실행 페이지.
     elif app_mode == "App 실행":
