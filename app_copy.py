@@ -177,6 +177,9 @@ def main():
         readme_text = read_markdown_file("main_markdown.md")
         st.markdown(readme_text,unsafe_allow_html=True)
 
+        video_file = open('app_copy · Streamlit - Chrome 2020-05-13 16-20-59.mp4', 'rb')
+        video_bytes = video_file.read()
+        st.video(video_bytes)
 
     ## app 실행 페이지.
     elif app_mode == "App 실행":
