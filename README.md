@@ -1,6 +1,6 @@
 # Brunch Networking
 
-브런치 작가를 위한 텍스트 자동분류 및 추천 시스템
+<b> 브런치 작가를 위한 텍스트 자동분류 및 추천 시스템 </b>
 
 ## 실제 app 실행 영상(이미지 클릭)
 [![Video Label](https://img.youtube.com/vi/RpEBgY3_stA/0.jpg)](https://youtu.be/RpEBgY3_stA)
