@@ -6,7 +6,7 @@
 
 <br>
 
-## 실제 app 실행 영상(이미지 클릭)
+## 최종 결과물 실행 영상(이미지 클릭)
 [![Video Label](https://img.youtube.com/vi/RpEBgY3_stA/0.jpg)](https://youtu.be/RpEBgY3_stA)
 
 ## 전체 흐름도
