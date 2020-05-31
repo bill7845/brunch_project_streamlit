@@ -19,6 +19,9 @@
 [![Video Label](https://img.youtube.com/vi/RpEBgY3_stA/0.jpg)](https://youtu.be/RpEBgY3_stA)
 
 ## < 전체 흐름도 >
+
+프로젝트의 전체적인 흐름입니다. BeautifulSoup과 Selenium을 사용하여 브런치의 게시글 20만개를 수집하였고, 한글 형태소 분석기인 Konlpy를 활용하여 수집된 텍스트 데이터를 전처리하였습니다. 이후에 여러가지 분류모델을 시험하고 가장 적합한 모델을 최종 선택하여 Streamlit을 활용해 API형태로 구현하였습니다.
+
 ![메인흐름](https://user-images.githubusercontent.com/35517797/81902112-8f7e4080-95fa-11ea-8954-1ab9952ec4e6.PNG)
 
 ## < 모델 학습 및 선택 >
