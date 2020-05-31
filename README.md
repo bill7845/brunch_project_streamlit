@@ -1,5 +1,7 @@
 # < Brunch Networking >
 
+<br> 
+
 <b> 브런치 작가를 위한 Text 분류모델과 추천시스템 </b>
 
 글쓰기 플랫폼 "브런치"의 
