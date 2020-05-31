@@ -13,6 +13,9 @@
 <br>
 
 ## 최종 결과물 실행 영상(이미지 클릭)
+
+먼저, 최종 결과물을 실행 영상으로 확인해보겠습니다.
+
 [![Video Label](https://img.youtube.com/vi/RpEBgY3_stA/0.jpg)](https://youtu.be/RpEBgY3_stA)
 
 ## < 전체 흐름도 >
