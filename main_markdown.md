@@ -2,16 +2,7 @@
 
 <br>
 
-### "데이터와 머신러닝으로 작가에게 다가가기"
+### "브런치 텍스트 자동분류 및 추천 시스템"
+#### Github Repository : https://github.com/bill7845/project_brunchNetworking_streamlit
 
 ---
-
-글쓰기 플랫폼 브런치의 게시글 20만개를 수집하여 텍스트 자동분류, 텍스트 추천(키워드,문서유사도 기반) 시스템을 구현하였습니다.
-
-<br>
-
-* <b> 사용 가이드 </b>
-
-<br>
-
-<iframe width="750" height="350" src="https://www.youtube.com/embed/RpEBgY3_stA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
