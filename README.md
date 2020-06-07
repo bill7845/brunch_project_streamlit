@@ -77,7 +77,7 @@ Word2Vec의 경우 BOW처럼 n차원의 희소 벡터를 만드는것이 아닌 
 
 <br>
 
-## < 키워드 기반 text 추천 >
+## < 추천 시스템 >
 
 <br> 
 
@@ -100,5 +100,4 @@ Word2Vec의 경우 BOW처럼 n차원의 희소 벡터를 만드는것이 아닌 
 
 ![추천1](https://user-images.githubusercontent.com/35517797/83950055-d7dbf780-a862-11ea-800d-863ea4a842aa.PNG)
 
-## < 문서 유사도 기반 text 추천 >
 ![추천2](https://user-images.githubusercontent.com/35517797/83950058-da3e5180-a862-11ea-98d4-b313b75b770d.PNG)
