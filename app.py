@@ -190,7 +190,7 @@ def main():
         st.write('Github Repository : https://github.com/bill7845/project_brunchNetworking_streamlit')
         st.write('')
 
-        video_file = open('테스트비디오.mp4', 'rb')
+        video_file = open('Testing Video.mp4', 'rb')
         video_bytes = video_file.read()
         st.video(video_bytes)
 
