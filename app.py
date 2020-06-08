@@ -30,28 +30,28 @@ import plotly as plt
 @st.cache(allow_output_mutation=True)
 def load_data():
     cur_dir = os.path.dirname(__file__)
-    df = pd.read_csv(cur_dir+'/pkl_objects/all_df.csv',index_col='Unnamed: 0')
+    df = pd.read_csv(cur_dir+'/pkl_objects/csv/all_df.csv',index_col='Unnamed: 0')
     return df
 
 ## load keyword count_vector
 @st.cache(allow_output_mutation=True)
 def load_keyword_count_vect():
     cur_dir = os.path.dirname(__file__)
-    keyword_count_vect = pickle.load(open(os.path.join(cur_dir,'pkl_objects','keyword_count_vect.pkl'), 'rb'))
+    keyword_count_vect = pickle.load(open(os.path.join(cur_dir,'pkl_objects','keyword','keyword_count_vect.pkl'), 'rb'))
     return keyword_count_vect
 
 ## load keyword matrix
 @st.cache(allow_output_mutation=True)
 def load_keyword_mat():
     cur_dir = os.path.dirname(__file__)
-    keyword_mat = pickle.load(open(os.path.join(cur_dir,'pkl_objects','keyword_mat.pkl'), 'rb'))
+    keyword_mat = pickle.load(open(os.path.join(cur_dir,'pkl_objects','keyword','keyword_mat.pkl'), 'rb'))
     return keyword_mat
 
 ## load classifier
 @st.cache
 def load_clf():
     cur_dir = os.path.dirname(__file__)
-    clf = pickle.load(open(os.path.join(cur_dir,'pkl_objects','classifier_logistic.pkl'), 'rb'))
+    clf = pickle.load(open(os.path.join(cur_dir,'model','classifier_lg.pkl'), 'rb'))
     return clf
 
 ## laod tfidf vector
@@ -90,7 +90,7 @@ def classify(document, label_dict, tfidf_train_vect):
 ## category에 해당하는 keyword 목록 반환
 def get_categories(label):
     cur_dir = os.path.dirname(__file__)
-    category_dict = pickle.load(open(os.path.join(cur_dir,'pkl_objects','keyword_dict.txt'), 'rb'))
+    category_dict = pickle.load(open(os.path.join(cur_dir,'pkl_objects','keyword','keyword_dict.txt'), 'rb'))
     return tuple(category_dict[label]) # streamlit의 multiselect box에서 사용위해 tuple로 반환
 
 ## 추천 시스템_1 작성 글 기반
