@@ -16,7 +16,7 @@
 
 먼저, 최종 결과물을 실행 영상으로 확인해보겠습니다.
 
-[![Video Label](https://img.youtube.com/vi/RpEBgY3_stA/0.jpg)](https://youtu.be/RpEBgY3_stA)
+[![Video Label](https://img.youtube.com/vi/BoHGqYS5zPg/0.jpg)](https://youtu.be/BoHGqYS5zPg)
 
 <br>
 
