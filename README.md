@@ -14,7 +14,7 @@
 
 ## 최종 결과물 실행 영상(이미지 클릭)
 
-먼저, 최종 결과물을 실행 영상으로 확인해보겠습니다.
+먼저, 최종 결과물을 실행 영상으로 확인해보겠습니다. ( <b> 설정 -> 자막 -> 한국어 자막 </b> )
 
 [![Video Label](https://img.youtube.com/vi/BoHGqYS5zPg/0.jpg)](https://youtu.be/BoHGqYS5zPg)
 
