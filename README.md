@@ -12,14 +12,6 @@
 
 <br>
 
-## 최종 결과물 실행 영상(이미지 클릭)
-
-먼저, 최종 결과물을 실행 영상으로 확인해보겠습니다. ( <b> 설정 -> 자막 -> 한국어 자막 </b> )
-
-[![Video Label](https://img.youtube.com/vi/BoHGqYS5zPg/0.jpg)](https://youtu.be/BoHGqYS5zPg)
-
-<br>
-
 ## < 전체 흐름도 >
 
 <br>
@@ -27,6 +19,14 @@
 프로젝트의 전체적인 흐름입니다. BeautifulSoup과 Selenium을 사용하여 브런치의 게시글 20만개를 수집하였고, 한글 형태소 분석기인 Konlpy를 활용하여 수집된 텍스트 데이터를 전처리하였습니다. 이후에 여러가지 분류모델을 실험하고 가장 적합한 모델을 최종 선택하여 Streamlit을 활용해 APP형태로 구현하였습니다.
 
 ![프로젝트 흐름도](https://user-images.githubusercontent.com/35517797/83950017-8cc1e480-a862-11ea-8d78-58c0a0671794.PNG)
+
+<br>
+
+## 최종 결과물 실행 영상(이미지 클릭)
+
+먼저, 최종 결과물을 실행 영상으로 확인해보겠습니다. ( <b> 설정 -> 자막 -> 한국어 자막 </b> )
+
+[![Video Label](https://img.youtube.com/vi/BoHGqYS5zPg/0.jpg)](https://youtu.be/BoHGqYS5zPg)
 
 <br>
 
