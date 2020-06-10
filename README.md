@@ -67,6 +67,8 @@ Word2Vec의 경우 BOW처럼 n차원의 희소 벡터를 만드는것이 아닌 
 
 ![confusion matrix](https://user-images.githubusercontent.com/35517797/84172557-1f5ac180-aab7-11ea-886f-e592bb565058.PNG)
 
+![db 저장](https://user-images.githubusercontent.com/35517797/84276683-8e92ed00-ab6d-11ea-9706-a6c44b4173a7.PNG)
+
 <br>
 
 > 현재 브런치의 카테고리는 총 24개입니다. 이 중에서 디자인, 그림웹툰 등 텍스트 보다는 이미지 위주의 글이 대다수인 6개의 카테고리를 제외한 18개의 카테고리만을 사용하였습니다.
