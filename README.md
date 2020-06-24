@@ -59,13 +59,15 @@ Word2Vec의 경우 BOW처럼 n차원의 희소 벡터를 만드는것이 아닌 
 
 ![모델지표](https://user-images.githubusercontent.com/35517797/84161304-19aaaf00-aaaa-11ea-8473-84bac8e31d91.PNG)
 
-![classification report](https://user-images.githubusercontent.com/35517797/84173093-c17aa980-aab7-11ea-9918-3bf7f715420c.PNG)
+사용한 평가지표와 모델의 예측속도,크기 등 여러 요건을 고려하여 Logistic Regression 모델을 최종적으로 선택하였습니다.
 
-사용한 평가지표와 모델의 예측속도,크기 등 여러 요건을 고려하여 Logistic Regression 모델을 최종적으로 선택하였습니다. 이후에 좀 더 복잡한 머신러닝 모델을 적용하거나 딥러닝 모델로 업데이트한다는 가정하에 사용자 입력text, 분류 성공여부, 실패 시 사용자 피드벡 등의 정보를 DB에 저장하는 과정 또한 포함하였습니다.
+![classification report](https://user-images.githubusercontent.com/35517797/84173093-c17aa980-aab7-11ea-9918-3bf7f715420c.PNG)
 
 최종 모델인 Logistic Regressin의 Classification Report를 살펴보면, "감성_에세이","멘탈관리_심리탐구","문화_예술","인문학_철학" (카테고리 Number 9,3,4,5) 의 카테고리에서 예측성능이 크게 저하되는것을 확인할 수 있습니다. 해당 카테고리의 게시글들을 실제로 살펴보니 인간의 눈으로도 명확히 구분하기 어려운 주제들이기도 하고 중복된 요소들이 많이 존재한다는점을 확인하였습니다. 이 문제에 대한 개선은 조금 더 복잡한 머신러닝 모델 혹은 딥러닝 모델을 사용하거나 사용자로부터의 피드벡을 통해 개선할 것입니다. 로지스틱 회귀 모델의 Confusion Matrix 또한 마찬가지로 카테고리 Number 9,3,4,5에서 오답률이 두드러지는것을 확인할 수 있습니다.
 
 ![confusion matrix](https://user-images.githubusercontent.com/35517797/84172557-1f5ac180-aab7-11ea-886f-e592bb565058.PNG)
+
+ 이후에 좀 더 복잡한 머신러닝 모델을 적용하거나 딥러닝 모델로 업데이트한다는 가정하에 사용자 입력text, 분류 성공여부, 실패 시 사용자 피드벡 등의 정보를 DB에 저장하는 과정 또한 포함하였습니다.
 
 ![db 저장](https://user-images.githubusercontent.com/35517797/84276683-8e92ed00-ab6d-11ea-9706-a6c44b4173a7.PNG)
 
